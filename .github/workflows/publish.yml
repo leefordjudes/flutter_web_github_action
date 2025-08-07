@@ -1,0 +1,45 @@
+name: Build Flutter Web and Upload to S3 (No Docker)
+
+on:
+  push:
+    branches: [main] # or any branch you want to trigger on
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.4'
+          channel: 'stable'
+
+      - name: Enable Web support
+        run: flutter config --enable-web
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Web with WASM
+        run: flutter build web --wasm
+
+      - name: Zip web build
+        run: |
+          mkdir dist
+          cd build/web
+          zip -r ../../dist/web_ui.zip .
+
+      - name: Upload to AWS S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --exact-timestamps
+        env:
+          AWS_S3_BUCKET: auditplus-desktop-releases
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-south-1
+          SOURCE_DIR: dist
