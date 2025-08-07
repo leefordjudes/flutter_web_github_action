@@ -38,6 +38,7 @@ jobs:
         run: |
           mkdir dist
           cd build/web
+          echo "$VERSION" >> "version.txt"
           zip -r ../../dist/${{ steps.out.outputs.version }}.zip .
           cd ../..
       
