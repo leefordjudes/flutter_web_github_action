@@ -1,8 +1,8 @@
-name: Build Flutter Web and Upload to S3 (No Docker)
+name: Build Flutter Web and Upload to S3
 
 on:
-  push:
-    branches: [main] # or any branch you want to trigger on
+  release:
+    types: [released]
 
 jobs:
   build-and-upload:
@@ -26,12 +26,18 @@ jobs:
 
       - name: Build Web with WASM
         run: flutter build web --wasm
+      
+      - name: Zip Version
+        id: out
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Zip web build
         run: |
           mkdir dist
-          cd build/web
-          zip -r ../../dist/web_ui.zip .      
+          zip -r ./dist/${{ steps.out.outputs.version }}.zip ./build/web/.
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -42,4 +48,4 @@ jobs:
 
       - name: Upload web_ui.zip to S3
         run: |
-          aws s3 cp --cache-control 'no-store' dist/web_ui.zip s3://auditplus-desktop-releases/web_ui.zip
+          aws s3 cp --cache-control 'no-store' dist/${{ steps.out.outputs.version }}.zip s3://download.auditplus.io/web-ui/${{ steps.out.outputs.version }}.zip
