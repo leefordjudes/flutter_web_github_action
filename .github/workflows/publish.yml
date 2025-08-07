@@ -31,14 +31,7 @@ jobs:
         run: |
           mkdir dist
           cd build/web
-          zip -r ../../dist/web_ui.zip .
-      
-      - name: Install AWS CLI v2 (no Python)
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          ./aws/install
-          aws --version   
+          zip -r ../../dist/web_ui.zip .      
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
