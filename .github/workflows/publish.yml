@@ -26,6 +26,7 @@ jobs:
 
       - name: Build Web with WASM
         run: flutter build web
+        # run: flutter build web --wasm --release --base-href /web-ui/
       
       - name: Zip Version
         id: out
