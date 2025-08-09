@@ -24,6 +24,7 @@ jobs:
       - name: Get dependencies
         env:
           CI: true
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: flutter pub get
 
       - name: Build Web with WASM
