@@ -17,6 +17,10 @@ jobs:
         with:
           flutter-version: '3.32.4'
           channel: 'stable'
+        
+      - name: Configure Git to access private repo
+        run: |
+          git config --global url."https://leefordjudes:${{ secrets.GH_LEEJ_AUTH }}@github.com/".insteadOf "https://github.com/"
 
       - name: Pre-download Flutter artifacts
         run: flutter precache --web
@@ -24,7 +28,6 @@ jobs:
       - name: Get dependencies
         env:
           CI: true
-          GH_PAT: ${{ secrets.GH_PAT }}
         run: flutter pub get
 
       - name: Build Web with WASM
